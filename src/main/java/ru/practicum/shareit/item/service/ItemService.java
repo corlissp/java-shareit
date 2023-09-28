@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ItemService {
-    private ItemRepository repository;
+    private final ItemRepository repository;
     private final ItemMapper itemMapper;
     private final UserService userService;
 
@@ -61,8 +61,7 @@ public class ItemService {
 
         checkOwner(userId, item);
 
-        ItemDto updatedItemDTO = itemMapper.toDto(repository.updateItem(itemId, itemMapper.toItem(itemDTO)));
-        return updatedItemDTO;
+        return itemMapper.toDto(repository.updateItem(itemId, itemMapper.toItem(itemDTO)));
     }
 
     public List<ItemDto> searchAvailableItemsByText(String text) {
@@ -85,7 +84,7 @@ public class ItemService {
     }
 
     private void checkOwner(Integer userId, Item item) {
-        if (item.getOwner() != userId) {
+        if (item.getOwner().equals(userId)) {
             throw new NotFoundItemException("Не найден предмет у пользователя!");
         }
     }
