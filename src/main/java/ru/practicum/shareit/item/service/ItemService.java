@@ -84,7 +84,7 @@ public class ItemService {
     }
 
     private void checkOwner(Integer userId, Item item) {
-        if (item.getOwner().equals(userId)) {
+        if (!item.getOwner().equals(userId)) {
             throw new NotFoundItemException("Не найден предмет у пользователя!");
         }
     }
