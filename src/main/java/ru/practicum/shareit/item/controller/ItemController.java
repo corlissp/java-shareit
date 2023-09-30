@@ -19,8 +19,12 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     public static final String USER_ID_HEADER = "X-Sharer-User-Id";
-    @Autowired
     private ItemService itemService;
+
+    @Autowired
+    public ItemController(ItemService itemService) {
+        this.itemService = itemService;
+    }
 
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) Integer userId) {
