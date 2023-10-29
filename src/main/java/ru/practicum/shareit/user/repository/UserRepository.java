@@ -7,5 +7,5 @@ import ru.practicum.shareit.user.model.User;
  * @author Min Danil 27.09.2023
  */
 
-public interface UserRepository extends JpaRepository <User, Integer> {
+public interface UserRepository extends JpaRepository<User, Integer> {
 }
