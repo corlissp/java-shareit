@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentDto;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 public class ItemService {
     private static final String NOT_FOUND_USER = "Не найден пользователь с id = ";
     public static final String EMPTY_COMMENT_MESSAGE = "Комментарий не может быть пустым";
-    public static final String DENIED_ACCESS_MESSAGE = "Пользователь не является владельцем вещи";
     public static final String COMMENT_EXCEPTION_MESSAGE = "Нельзя оставить комментарий на вещь, " +
             "который вы не пользовались или ещё не закончился срок аренды";
     private static final String NOT_FOUND_ITEM = "Не найден item с id = ";
@@ -57,14 +57,6 @@ public class ItemService {
     }
 
     public List<ItemDto> getAllItems(Integer userId) {
-//        UserDto userDto = userService.getUser(userId);
-//        return repository.findAll().stream()
-//                .filter(item -> item.getOwner().equals(userId))
-//                .map(item -> {
-//            ItemDto itemDTO = itemMapper.toDto(item);
-//            itemDTO.setOwner(userDto.getId());
-//            return itemDTO;})
-//                .collect(Collectors.toList());
         List<Item> userItems = repository.findAll()
                 .stream().filter(item -> item.getOwner().equals(userId))
                 .collect(Collectors.toList());
@@ -109,13 +101,16 @@ public class ItemService {
     }
 
     private ItemDto constructItemDtoForOwner(Item item, LocalDateTime now, Sort sort, List<Comment> comments) {
-        Booking lastBooking = bookingRepository.findBookingByItemIdAndEndBefore(item.getId(), now, sort)
+        List<Booking> bookings = bookingRepository.findByItemIdOrderByIdDesc(item.getId());
+        Booking lastBooking = bookingRepository.findBookingByItemIdAndStartBefore(item.getId(), now, sort)
                 .stream()
                 .findFirst()
                 .orElse(null);
+
         sort = sort.ascending();
         Booking nextBooking = bookingRepository.findBookingByItemIdAndStartAfter(item.getId(), now, sort)
                 .stream()
+                .filter(booking -> !booking.getStatus().equals(BookingStatus.REJECTED))
                 .findFirst()
                 .orElse(null);
         return itemMapper.toDto(item,
@@ -134,10 +129,6 @@ public class ItemService {
             Sort sortDesc = Sort.by("start").descending();
             return constructItemDtoForOwner(item, now, sortDesc, comments);
         }
-//        ItemDto itemDTO = itemMapper.toDto(item);
-//        itemDTO.setOwner(item.getOwner());
-//        itemDTO.setComments(commentMapper.toCommentDtoList(comments));
-        //return itemDTO;
         return itemMapper.toDto(item, null, null, comments);
     }
 
@@ -163,27 +154,11 @@ public class ItemService {
     }
 
     public ItemDto updateItem(Integer itemId, Integer userId, ItemDto itemDTO) {
-//        Item item = repository.findById(itemId).orElseThrow();
-//        checkOwner(userId, item);
-//        Item patch = itemMapper.toItem(itemDTO);
-//        patch.setId(itemId);
-//        item = repository.save(refreshItem(patch));
-//        return itemMapper.toDto(item);
-//
-//        Item item = itemMapper.toItem(itemDTO);
-//        item.setId(itemId);
-//        item.setOwner(userId);
-//        List<Comment> comments = commentRepository.findByItemId(itemId);
-//        item = repository.save(refreshItem(item));
-//        return itemMapper.toDto(item, comments);
-
-        // User user = userRepository.findById(userId).orElseThrow();
         Item oldItem = repository.findById(itemId).orElseThrow(() -> new NotFoundException(NOT_FOUND_ITEM + itemId));
         checkOwner(userId, oldItem);
         Item updatedItem = Item.builder()
                 .id(itemId)
                 .owner(oldItem.getOwner())
-                //.request(oldItem.getRequest())
                 .name(Objects.requireNonNullElse(itemDTO.getName(), oldItem.getName()))
                 .description(Objects.requireNonNullElse(itemDTO.getDescription(), oldItem.getDescription()))
                 .available(Objects.requireNonNullElse(itemDTO.getAvailable(), oldItem.getAvailable()))
@@ -211,25 +186,6 @@ public class ItemService {
         Item item = repository.findById(itemId).orElseThrow();
         checkOwner(userId, item);
         repository.deleteById(itemId);
-    }
-
-    private Item refreshItem(Item patch) {
-        Item entry = repository.findById(patch.getId()).orElseThrow();
-        String name = patch.getName();
-        if (name != null && !name.isBlank()) {
-            entry.setName(name);
-        }
-
-        String description = patch.getDescription();
-        if (description != null && !description.isBlank()) {
-            entry.setDescription(description);
-        }
-
-        Boolean available = patch.getAvailable();
-        if (available != null) {
-            entry.setAvailable(available);
-        }
-        return entry;
     }
 
     private void checkOwner(Integer userId, Item item) {

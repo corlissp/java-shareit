@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.Request;
 
 import javax.persistence.*;
 
@@ -30,5 +29,4 @@ public class Item {
     private Boolean available;
     @Column(name = "owner", nullable = false)
     private Integer owner;
-    //private Request request;
 }

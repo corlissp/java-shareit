@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.service;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import static ru.practicum.shareit.booking.model.BookingStatus.*;
  * @author Min Danil 12.10.2023
  */
 @Service
-@AllArgsConstructor
 public class BookingService {
     public static final String DENIED_ACCESS_MESSAGE = "пользователь не является владельцем вещи или брони userId: ";
     public static final String BOOKING_INVALID_MESSAGE = "Недопустимые значения времени бронирования: ";
@@ -39,6 +37,13 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
+
+    @Autowired
+    public BookingService(UserRepository userRepository, ItemRepository itemRepository, BookingRepository bookingRepository) {
+        this.userRepository = userRepository;
+        this.itemRepository = itemRepository;
+        this.bookingRepository = bookingRepository;
+    }
 
 
     public BookingPostResponseDto createBooking(BookingPostDto dto, Integer userId) {
@@ -126,6 +131,7 @@ public class BookingService {
             default :
                 throw new RuntimeException();
         }
+
         return BookingMapper.toListDetailedDto(bookings);
     }
 

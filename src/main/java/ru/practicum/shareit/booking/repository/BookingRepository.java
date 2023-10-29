@@ -12,6 +12,7 @@ import java.util.List;
  * @author Min Danil 12.10.2023
  */
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
+    List<Booking> findByItemIdOrderByIdDesc(Integer itemId);
 
     List<Booking> findByBookerIdAndEndIsBefore(Integer bookerId, LocalDateTime now, Sort sort);
 
@@ -29,7 +30,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findBookingByItemOwner(Integer bookerId, Sort sort);
 
-    List<Booking> findBookingByItemIdAndEndBefore(Integer itemId, LocalDateTime end, Sort sort);
+    List<Booking> findBookingByItemIdAndStartBefore(Integer itemId, LocalDateTime end, Sort sort);
 
     List<Booking> findBookingByItemIdAndStartAfter(Integer itemId, LocalDateTime start, Sort sort);
 
@@ -37,7 +38,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "where b.booker.id = ?1 " +
             "and b.start < ?2 " +
             "and b.end > ?2 " +
-            "order by b.start asc ")
+            "order by b.start desc ")
     List<Booking> findByBookerIdCurrent(Integer userId, LocalDateTime now);
 
     @Query("select b from bookings b " +
@@ -52,4 +53,5 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             " and b.booker.id = ?2" +
             " and b.end < ?3")
     List<Booking> findBookingsForAddComments(Integer itemId, Integer userId, LocalDateTime now);
+
 }
