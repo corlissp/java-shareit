@@ -41,7 +41,7 @@ public class UserService {
     }
 
     public UserDto getUser(Integer id) {
-        return mapper.toUserDTO(repository.findById(id).orElseThrow(()-> new NotFoundException(NOT_FOUND_USER + id)));
+        return mapper.toUserDTO(repository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_USER + id)));
     }
 
     public void deleteUser(Integer id) {
@@ -68,7 +68,6 @@ public class UserService {
     private boolean checkFreeEmail(User user) {
         List<User> list = repository.findAll();
         if (user.getEmail() == null)
-
             return true;
         for (User check: list) {
             if (user.getEmail().equals(check.getEmail()) && !Objects.equals(check.getId(), user.getId()))

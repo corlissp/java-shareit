@@ -12,6 +12,7 @@ import java.util.List;
  * @author Min Danil 12.10.2023
  */
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
+
     List<Booking> findByItemIdOrderByIdDesc(Integer itemId);
 
     List<Booking> findByBookerIdAndEndIsBefore(Integer bookerId, LocalDateTime now, Sort sort);

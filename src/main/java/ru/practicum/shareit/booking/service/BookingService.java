@@ -51,7 +51,7 @@ public class BookingService {
             throw new InvalidBookingException(BOOKING_INVALID_MESSAGE +
                     "start: " + dto.getStart() + " end: " + dto.getEnd() + " now: ");
         }
-        User user = userRepository.findById(userId).orElseThrow(()-> new NotFoundException(NOT_FOUND_USER + userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND_USER + userId));
         Item item = itemRepository.findById(dto.getItemId()).orElseThrow(() -> new NotFoundException(NOT_FOUND_ITEM + dto.getItemId()));
         if (userId.equals(item.getOwner())) {
             throw new NotFoundException(INVALID_BUCKING);
