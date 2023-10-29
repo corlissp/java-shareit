@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.validation.Create;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@Validated @RequestBody UserDto user) {
+    public UserDto createUser(@Validated({Create.class}) @RequestBody UserDto user) {
         log.info("Получен post-запрос /users");
         return service.saveUser(user);
     }

@@ -2,11 +2,13 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.item.validation.Create;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.Request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -22,5 +24,8 @@ public class ItemDto {
     @NotNull(groups = {Create.class})
     private Boolean available;
     private Integer owner;
-    private ItemRequest request;
+    private Request request;
+    private BookingInItemDto lastBooking;
+    private BookingInItemDto nextBooking;
+    private List<CommentDto> comments;
 }

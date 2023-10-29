@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -7,16 +9,9 @@ import java.util.List;
 /**
  * @author Min Danil 28.09.2023
  */
-public interface ItemRepository {
-    List<Item> getAllItems(Integer userId);
-
-    Item saveItem(Integer userId, Item item);
-
-    Item getItemById(Integer id);
-
-    Item updateItem(Integer itemId, Item item);
-
-    void deleteItem(Integer itemId);
-
-    List<Item> searchAvailableItemsByText(String text);
+public interface ItemRepository extends JpaRepository<Item, Integer> {
+    @Query(" select i from items i " +
+            "where upper(i.name) like upper(concat('%', ?1, '%')) " +
+            " or upper(i.description) like upper(concat('%', ?1, '%')) and i.available = true")
+    List<Item> search(String text);
 }

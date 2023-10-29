@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.exception;
+package ru.practicum.shareit.exception;
 
 /**
  * @author Min Danil 27.09.2023

@@ -6,19 +6,16 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
- * TODO Sprint add-bookings.
+ * @author Min Danil 12.10.2023
  */
 @Data
 @Builder
-public class BookingDto {
-    private Long id;
-    @NotNull
+public class BookingResponseDto {
+    private Integer id;
     private LocalDateTime start;
-    @NotNull
     private LocalDateTime end;
     private BookingStatus status;
     private User booker;

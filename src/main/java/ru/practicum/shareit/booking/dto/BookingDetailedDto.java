@@ -10,12 +10,12 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
- * TODO Sprint add-bookings.
+ * @author Min Danil 19.10.2023
  */
 @Data
 @Builder
-public class BookingDto {
-    private Long id;
+public class BookingDetailedDto {
+    private Integer id;
     @NotNull
     private LocalDateTime start;
     @NotNull

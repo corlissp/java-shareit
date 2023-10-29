@@ -1,8 +1,12 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.request.ItemRequest;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.request.Request;
+
+import javax.persistence.*;
 
 /**
  * TODO Sprint add-controllers.
@@ -10,11 +14,21 @@ import ru.practicum.shareit.request.ItemRequest;
 
 @Data
 @Builder
+@Entity(name = "items")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Item {
+    @Id
+    @Column(name = "item_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "name", nullable = false)
     private String name;
+    @Column(name = "description", nullable = false, length = 512)
     private String description;
+    @Column(name = "available", nullable = false)
     private Boolean available;
+    @Column(name = "owner", nullable = false)
     private Integer owner;
-    private ItemRequest request;
+    //private Request request;
 }
