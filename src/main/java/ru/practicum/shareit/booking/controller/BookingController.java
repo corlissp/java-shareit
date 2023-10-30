@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDetailedDto;
@@ -17,16 +17,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(path = "/bookings")
+@RequiredArgsConstructor
 public class BookingController {
     public static final String DEFAULT_STATE_VALUE = "ALL";
     public static final String USER_ID_HEADER = "X-Sharer-User-Id";
-
-    private BookingService bookingService;
-
-    @Autowired
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
+    private final BookingService bookingService;
 
     @PostMapping
     public BookingPostResponseDto createBooking(@RequestBody @Validated(Create.class) BookingPostDto dto,

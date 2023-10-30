@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -16,14 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-
-    private UserService service;
-
-    @Autowired
-    public UserController(UserService service) {
-        this.service = service;
-    }
+    private final UserService service;
 
     @GetMapping
     public List<UserDto> getAllUsers() {

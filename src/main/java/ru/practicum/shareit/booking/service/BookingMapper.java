@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 /**
  * @author Min Danil 19.10.2023
  */
-@Component
 public class BookingMapper {
     public static Booking toModel(BookingPostDto dto, Item item, User user) {
         return Booking.builder()
