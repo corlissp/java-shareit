@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
  * @author Min Danil 28.09.2023
  */
 @Service
+@Transactional(readOnly = true)
 public class ItemService {
     private static final String NOT_FOUND_USER = "Не найден пользователь с id = ";
     public static final String EMPTY_COMMENT_MESSAGE = "Комментарий не может быть пустым";
@@ -101,7 +103,6 @@ public class ItemService {
     }
 
     private ItemDto constructItemDtoForOwner(Item item, LocalDateTime now, Sort sort, List<Comment> comments) {
-        List<Booking> bookings = bookingRepository.findByItemIdOrderByIdDesc(item.getId());
         Booking lastBooking = bookingRepository.findBookingByItemIdAndStartBefore(item.getId(), now, sort)
                 .stream()
                 .findFirst()
@@ -132,6 +133,7 @@ public class ItemService {
         return itemMapper.toDto(item, null, null, comments);
     }
 
+    @Transactional
     public ItemDto saveItem(Integer userId, ItemDto itemDTO) {
         UserDto userDto = userService.getUser(userId);
         itemDTO.setOwner(userDto.getId());
@@ -139,6 +141,7 @@ public class ItemService {
         return itemMapper.toDto(item);
     }
 
+    @Transactional
     public CommentDto saveComment(CreateCommentDto commentDto, Integer itemId, Integer userId) {
         if (commentDto.getText().isBlank()) throw new CommentException(EMPTY_COMMENT_MESSAGE);
         Item item = repository.findById(itemId).orElseThrow(() -> new NotFoundException(NOT_FOUND_ITEM + itemId));
@@ -150,9 +153,9 @@ public class ItemService {
         Comment comment = commentMapper.toComment(commentDto, item, author);
         comment = commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
-        // return null;
     }
 
+    @Transactional
     public ItemDto updateItem(Integer itemId, Integer userId, ItemDto itemDTO) {
         Item oldItem = repository.findById(itemId).orElseThrow(() -> new NotFoundException(NOT_FOUND_ITEM + itemId));
         checkOwner(userId, oldItem);

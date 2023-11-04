@@ -24,7 +24,7 @@ public class Request {
     @Column(name = "description")
     private String description;
     @Column(name = "requestor")
-    private Integer requester;
+    private Integer requestor;
     @Column(name = "created")
-    private LocalDateTime createdTime;
+    private LocalDateTime created;
 }
