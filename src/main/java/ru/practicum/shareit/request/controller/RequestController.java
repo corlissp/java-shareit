@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.validation.Create;
 import ru.practicum.shareit.request.dto.PostRequestDto;
 import ru.practicum.shareit.request.dto.PostResponseRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
+import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.constraints.Min;
 import java.util.List;

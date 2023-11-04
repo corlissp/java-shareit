@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
 import ru.practicum.shareit.item.validation.Create;
-import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.request.model.Request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
