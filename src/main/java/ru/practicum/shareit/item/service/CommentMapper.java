@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
  */
 @Component
 public class CommentMapper {
+
+    public CommentMapper() {
+    }
+
     public Comment toComment(CreateCommentDto commentDto, Item item, User author) {
         return Comment.builder()
                 .text(commentDto.getText())
