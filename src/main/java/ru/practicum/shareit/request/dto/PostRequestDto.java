@@ -7,9 +7,6 @@ import ru.practicum.shareit.item.validation.Create;
 
 import javax.validation.constraints.NotBlank;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

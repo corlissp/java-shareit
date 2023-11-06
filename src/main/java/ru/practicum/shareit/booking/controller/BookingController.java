@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.validation.Create;
 
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class BookingController {
                                                     @RequestParam(defaultValue = DEFAULT_FROM_VALUE)
                                                     @PositiveOrZero int from,
                                                     @RequestParam(defaultValue = DEFAULT_SIZE_VALUE)
-                                                    @PositiveOrZero int size) {
+                                                    @Positive int size) {
         return bookingService.findAllByBooker(state, userId, from, size);
     }
 
@@ -64,7 +65,7 @@ public class BookingController {
                                             @RequestParam(defaultValue = DEFAULT_FROM_VALUE)
                                             @PositiveOrZero int from,
                                             @RequestParam(defaultValue = DEFAULT_SIZE_VALUE)
-                                            @PositiveOrZero int size) {
+                                            @Positive int size) {
         return bookingService.findAllByItemOwner(state, userId, from, size);
     }
 }

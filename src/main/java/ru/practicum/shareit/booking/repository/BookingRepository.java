@@ -39,15 +39,13 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("select b from bookings b " +
             "where b.booker.id = ?1 " +
             "and b.start < ?2 " +
-            "and b.end > ?2 " +
-            "order by b.start desc ")
+            "and b.end > ?2 ")
     Page<Booking> findByBookerIdCurrent(Integer userId, LocalDateTime now, Pageable pageable);
 
     @Query("select b from bookings b " +
             "where b.item.owner = ?1 " +
             "and b.start < ?2 " +
-            "and b.end > ?2 " +
-            "order by b.start asc")
+            "and b.end > ?2 ")
     Page<Booking> findBookingsByItemOwnerCurrent(Integer userId, LocalDateTime now, Pageable pageable);
 
     @Query("select b from bookings b " +
