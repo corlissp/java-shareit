@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
 @Builder
 @Entity(name = "requests")
@@ -21,10 +18,10 @@ public class Request {
     @Column(name = "request_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
-    @Column(name = "requestor")
+    @Column(name = "requestor", nullable = false)
     private Integer requestor;
-    @Column(name = "created")
+    @Column(name = "created", nullable = false)
     private LocalDateTime created;
 }

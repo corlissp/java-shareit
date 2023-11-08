@@ -3,6 +3,7 @@ package ru.practicum.shareit.request.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PostResponseRequestDto {
     private Integer id;
+    @Size(max = 512)
     private String description;
     private LocalDateTime created;
 }

@@ -8,18 +8,18 @@ import ru.practicum.shareit.request.model.Request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @Builder
 public class ItemDto {
     private int id;
     @NotBlank(groups = {Create.class})
+    @Size(max = 512)
     private String name;
     @NotBlank(groups = {Create.class})
+    @Size(max = 512)
     private String description;
     @NotNull(groups = {Create.class})
     private Boolean available;

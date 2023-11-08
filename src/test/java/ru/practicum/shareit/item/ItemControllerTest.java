@@ -65,6 +65,23 @@ public class ItemControllerTest {
     }
 
     @Test
+    public void createItemBadRequestTest() throws Exception {
+        ItemDto inputDto = generateItemInputEmptyDto();
+        ItemDto responseDto = generateItemResponseDto(ID, inputDto);
+
+        when(itemService.saveItem(any(Integer.class), any(ItemDto.class)))
+                .thenReturn(responseDto);
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(inputDto))
+                        .header(USER_ID_HEADER, ID)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void createCommentTest() throws Exception {
         CreateCommentDto inputCommentDto = new CreateCommentDto("text");
         CommentDto responseCommentDto = generateResponseCommentDto(ID, inputCommentDto);
@@ -139,6 +156,14 @@ public class ItemControllerTest {
         return ItemDto.builder()
                 .name("name")
                 .description("description")
+                .available(true)
+                .build();
+    }
+
+    private ItemDto generateItemInputEmptyDto() {
+        return ItemDto.builder()
+                .name("")
+                .description("")
                 .available(true)
                 .build();
     }

@@ -31,7 +31,7 @@ public class RequestControllerTest {
 
     public static final String FROM_VALUE = "0";
     public static final String SIZE_VALUE = "20";
-    public static final Long USER_ID_VALUE = 1L;
+    public static final Integer USER_ID_VALUE = 1;
     public static final String FROM_PARAM = "from";
     public static final String SIZE_PARAM = "size";
     public static final String TEST_DESCRIPTION = "description";
@@ -57,7 +57,7 @@ public class RequestControllerTest {
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(requestDto))
-                        .header(USER_ID_HEADER, 1L)
+                        .header(USER_ID_HEADER, 1)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -67,6 +67,25 @@ public class RequestControllerTest {
 
         verify(itemRequestService, times(1))
                 .createRequest(any(PostRequestDto.class), any(Integer.class));
+    }
+
+    @Test
+    public void createRequestBadRequestTest() throws Exception {
+        PostRequestDto requestDto = createPostRequestDto(null);
+        Integer requestId = 1;
+        LocalDateTime creationDate = LocalDateTime.now();
+        PostResponseRequestDto responseDto = createPostResponseDto(requestId, requestDto, creationDate);
+
+        when(itemRequestService.createRequest(any(PostRequestDto.class), any(Integer.class)))
+                .thenReturn(responseDto);
+
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(requestDto))
+                        .header(USER_ID_HEADER, 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
