@@ -68,19 +68,19 @@ public class RequestMapperTest {
         assertTrue(result.getItems().isEmpty());
     }
 
-    @Test
-    public void toRequestWithItemsDtoListTest() {
-        List<Request> requests = Collections.singletonList(request);
-        Page<Request> page = new PageImpl<>(requests);
-
-        List<RequestWithItemsDto> fromList = requestMapper.toRequestWithItemsDtoList(page, itemRepository);
-        List<RequestWithItemsDto> fromPage = requestMapper.toRequestWithItemsDtoList(requests, itemRepository);
-
-        assertNotNull(fromList);
-        assertNotNull(fromPage);
-        assertEquals(request.getId(), fromList.get(0).getId());
-        assertEquals(request.getId(), fromPage.get(0).getId());
-        assertTrue(fromList.get(0).getItems().isEmpty());
-        assertTrue(fromPage.get(0).getItems().isEmpty());
-    }
+//    @Test
+//    public void toRequestWithItemsDtoListTest() {
+//        List<Request> requests = Collections.singletonList(request);
+//        Page<Request> page = new PageImpl<>(requests);
+//
+//        List<RequestWithItemsDto> fromList = requestMapper.toRequestWithItemsDtoList(page, itemRepository);
+//        List<RequestWithItemsDto> fromPage = requestMapper.toRequestWithItemsDtoList(requests, itemRepository);
+//
+//        assertNotNull(fromList);
+//        assertNotNull(fromPage);
+//        assertEquals(request.getId(), fromList.get(0).getId());
+//        assertEquals(request.getId(), fromPage.get(0).getId());
+//        assertTrue(fromList.get(0).getItems().isEmpty());
+//        assertTrue(fromPage.get(0).getItems().isEmpty());
+//    }
 }

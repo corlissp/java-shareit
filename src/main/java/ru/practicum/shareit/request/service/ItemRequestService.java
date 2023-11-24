@@ -17,7 +17,9 @@ import ru.practicum.shareit.request.dto.PostResponseRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Min Danil 04.11.2023
@@ -43,14 +45,26 @@ public class ItemRequestService {
     public List<RequestWithItemsDto> findAllByUserId(Integer userId) {
         checkIfUserExists(userId);
         List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedDesc(userId);
-        return requestMapper.toRequestWithItemsDtoList(requests, itemRepository);
+        List<RequestWithItemsDto> result = new ArrayList<>();
+        if (requests != null && !requests.isEmpty()) {
+            for (Request request : requests) {
+                List<Item> items = itemRepository.findAllByRequestId(request.getId());
+                RequestWithItemsDto requestDto = requestMapper.toRequestWithItemsDto(request, items);
+                result.add(requestDto);
+            }
+        }
+        return result;
     }
 
     public List<RequestWithItemsDto> findAll(int from, int size, Integer userId) {
         checkIfUserExists(userId);
         Pageable pageable = PageRequest.of(from / size, size, SORT.descending());
         Page<Request> requests = requestRepository.findAll(userId, pageable);
-        return requestMapper.toRequestWithItemsDtoList(requests, itemRepository);
+        return requests.stream()
+                .map((Request request) -> {
+                    List<Item> items = itemRepository.findAllByRequestId(request.getId());
+                    return requestMapper.toRequestWithItemsDto(request, items);
+                }).collect(Collectors.toList());
     }
 
     public RequestWithItemsDto findById(Integer requestId, Integer userId) {

@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.item.validation.Create;
+import ru.practicum.shareit.item.validation.Update;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,11 +19,11 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class UserDto {
     private Integer id;
-    @NotNull(groups = {Create.class})
+    @NotEmpty(groups = {Create.class})
     @Size(max = 512)
     private String name;
-    @Email(groups = {Create.class})
-    @NotNull(groups = {Create.class})
+    @Email(groups = {Create.class, Update.class})
+    @NotEmpty(groups = {Create.class, Update.class})
     @Size(max = 512)
     private String email;
 }
