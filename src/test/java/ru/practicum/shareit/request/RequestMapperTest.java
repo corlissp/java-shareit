@@ -2,8 +2,6 @@ package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.CommentMapper;
 import ru.practicum.shareit.item.service.ItemMapper;
@@ -15,8 +13,6 @@ import ru.practicum.shareit.request.service.RequestMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -67,20 +63,4 @@ public class RequestMapperTest {
         assertEquals(request.getCreated(), result.getCreated());
         assertTrue(result.getItems().isEmpty());
     }
-
-//    @Test
-//    public void toRequestWithItemsDtoListTest() {
-//        List<Request> requests = Collections.singletonList(request);
-//        Page<Request> page = new PageImpl<>(requests);
-//
-//        List<RequestWithItemsDto> fromList = requestMapper.toRequestWithItemsDtoList(page, itemRepository);
-//        List<RequestWithItemsDto> fromPage = requestMapper.toRequestWithItemsDtoList(requests, itemRepository);
-//
-//        assertNotNull(fromList);
-//        assertNotNull(fromPage);
-//        assertEquals(request.getId(), fromList.get(0).getId());
-//        assertEquals(request.getId(), fromPage.get(0).getId());
-//        assertTrue(fromList.get(0).getItems().isEmpty());
-//        assertTrue(fromPage.get(0).getItems().isEmpty());
-//    }
 }
