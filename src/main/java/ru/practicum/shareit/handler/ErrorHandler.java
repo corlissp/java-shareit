@@ -39,7 +39,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleNotFoundException(final EmailConflictException e) {
+    public ErrorResponse handleEmailConflictException(final EmailConflictException e) {
         String message = e.getMessage();
 
         log.error(message);
@@ -62,8 +62,12 @@ public class ErrorHandler {
 
     @RequiredArgsConstructor
     @Getter
-    private static class ErrorResponse {
+    public static class ErrorResponse {
         private final String error;
+
+        public String getError() {
+            return error;
+        }
     }
 }
 
