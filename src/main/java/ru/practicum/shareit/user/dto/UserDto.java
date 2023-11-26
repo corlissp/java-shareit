@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.validation.Create;
 import ru.practicum.shareit.item.validation.Update;
 
@@ -17,7 +16,6 @@ import javax.validation.constraints.Size;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserDto {
     private Integer id;
     @NotEmpty(groups = {Create.class})
