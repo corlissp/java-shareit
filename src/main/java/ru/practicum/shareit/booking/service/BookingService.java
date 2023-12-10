@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDetailedDto;
@@ -19,9 +21,11 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practicum.shareit.booking.model.BookingStatus.*;
+import static ru.practicum.shareit.booking.model.BookingStatus.REJECTED;
+import static ru.practicum.shareit.booking.model.BookingStatus.WAITING;
 
 /**
  * @author Min Danil 12.10.2023
@@ -37,6 +41,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
+    public static final Sort SORT = Sort.by("start").descending();
 
     @Autowired
     public BookingService(UserRepository userRepository, ItemRepository itemRepository, BookingRepository bookingRepository) {
@@ -99,74 +104,73 @@ public class BookingService {
         return BookingMapper.toDetailedDto(booking);
     }
 
-    public List<BookingDetailedDto> findAllByBooker(String state, Integer userId) {
-        State status = parseState(state);
+    public List<BookingDetailedDto> findAllByBooker(String stateValue, Integer userId, int from, int size) {
         checkIfUserExists(userId);
+        State status = parseState(stateValue);
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings;
-        Sort sort = Sort.by("start").descending();
+        List<Booking> bookings = new ArrayList<>();
+
+        Pageable pageable = PageRequest.of(from / size, size, SORT);
+
         switch (status) {
             case REJECTED :
                 bookings = bookingRepository
-                        .findByBookerIdAndStatus(userId, REJECTED, sort);
+                        .findByBookerIdAndStatus(userId, REJECTED, pageable).toList();
                 break;
             case WAITING :
                 bookings = bookingRepository
-                        .findByBookerIdAndStatus(userId, WAITING, sort);
+                        .findByBookerIdAndStatus(userId, WAITING, pageable).toList();
                 break;
             case CURRENT :
-                bookings = bookingRepository.findByBookerIdCurrent(userId, now);
+                bookings = bookingRepository.findByBookerIdCurrent(userId, now, pageable).toList();
                 break;
             case FUTURE :
                 bookings = bookingRepository
-                        .findByBookerIdAndStartIsAfter(userId, now, sort);
+                        .findByBookerIdAndStartIsAfter(userId, now, pageable).toList();
                 break;
             case PAST :
                 bookings = bookingRepository
-                        .findByBookerIdAndEndIsBefore(userId, now, sort);
+                        .findByBookerIdAndEndIsBefore(userId, now, pageable).toList();
                 break;
             case ALL :
-                bookings = bookingRepository.findByBookerId(userId, sort);
+                bookings = bookingRepository.findByBookerId(userId, pageable).toList();
                 break;
-            default :
-                throw new RuntimeException();
         }
-
         return BookingMapper.toListDetailedDto(bookings);
     }
 
-        public List<BookingDetailedDto> findAllByItemOwner(String stateValue, Integer userId) {
-        State state = parseState(stateValue);
+    public List<BookingDetailedDto> findAllByItemOwner(String stateValue, Integer userId, int from, int size) {
         checkIfUserExists(userId);
+        State state = parseState(stateValue);
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings;
-        Sort sort = Sort.by("start").descending();
+        List<Booking> bookings = new ArrayList<>();
+
+        Pageable pageable = PageRequest.of(from / size, size, SORT);
+
         switch (state) {
             case REJECTED :
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndStatus(userId, REJECTED, sort);
+                        .findBookingByItemOwnerAndStatus(userId, REJECTED, pageable).toList();
                 break;
             case WAITING :
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndStatus(userId, WAITING, sort);
+                        .findBookingByItemOwnerAndStatus(userId, WAITING, pageable).toList();
                 break;
             case CURRENT :
-                bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now);
+                bookings = bookingRepository.findBookingsByItemOwnerCurrent(userId, now, pageable).toList();
                 break;
             case FUTURE :
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndStartIsAfter(userId, now, sort);
+                        .findBookingByItemOwnerAndStartIsAfter(userId, now, pageable).toList();
                 break;
             case PAST :
                 bookings = bookingRepository
-                        .findBookingByItemOwnerAndEndIsBefore(userId, now, sort);
+                        .findBookingByItemOwnerAndEndIsBefore(userId, now, pageable).toList();
                 break;
             case ALL :
                 bookings = bookingRepository
-                        .findBookingByItemOwner(userId, sort);
+                        .findBookingByItemOwner(userId, pageable).toList();
                 break;
-            default :
-                throw new RuntimeException();
         }
         return BookingMapper.toListDetailedDto(bookings);
     }

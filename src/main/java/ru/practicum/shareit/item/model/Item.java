@@ -7,10 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Data
 @Builder
 @Entity(name = "items")
@@ -29,4 +25,6 @@ public class Item {
     private Boolean available;
     @Column(name = "owner", nullable = false)
     private Integer owner;
+    @Column(name = "request_id")
+    private Integer requestId;
 }
