@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.EmailConflictException;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
@@ -17,6 +18,7 @@ import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -104,6 +106,35 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
 
         verify(userService, times(1)).deleteUser(any(Integer.class));
+    }
+
+    @Test
+    public void updateUserTest2() throws Exception {
+        Integer userId = 1;
+        UserDto userDto = createTestUserDto(userId);
+        userDto.setName("updatedName");
+
+        when(userService.updateUser(any(UserDto.class), any(Integer.class)))
+                .thenReturn(userDto);
+
+        mvc.perform(patch("/users/1")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(toJson(userDto)))
+                .andDo(print());  // Добавлено для вывода информации о запросе и ответе
+
+        verify(userService, times(1)).updateUser(any(UserDto.class), any(Integer.class));
+    }
+
+    @Test
+    public void deleteUserByIdTest2() throws Exception {
+        mvc.perform(delete("/users/1"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).deleteUser(1);
     }
 
     private UserDto createTestUserDto(Integer id) {

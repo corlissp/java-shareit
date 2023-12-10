@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingDetailedDto;
 import ru.practicum.shareit.booking.dto.BookingPostDto;
 import ru.practicum.shareit.booking.dto.BookingPostResponseDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.exception.InvalidBookingException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -21,6 +22,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -364,4 +366,62 @@ public class BookingServiceTest {
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
+
+    @Test
+    public void createBookingInvalidTimeTest() {
+        bookingPostDto.setStart(DATE.plusDays(7));
+        bookingPostDto.setEnd(DATE);
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(item));
+
+        InvalidBookingException e = assertThrows(InvalidBookingException.class,
+                () -> {
+                    bookingService.createBooking(bookingPostDto, ID);
+                });
+
+        assertEquals(BookingService.BOOKING_INVALID_MESSAGE + "start: " + DATE.plusDays(7) + " end: " + DATE + " now: ", e.getMessage());
+    }
+
+    @Test
+    public void findByIdAccessDeniedTest() {
+        user.setId(ID + 10);
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(bookingRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(booking));
+
+        NotFoundException e = assertThrows(NotFoundException.class,
+                () -> {
+                    bookingService.findById(ID, ID);
+                });
+
+        assertEquals(BookingService.DENIED_ACCESS_MESSAGE + ID, e.getMessage());
+    }
+
+    @Test
+    public void patchBookingAlreadyRejectedTest() {
+        when(bookingRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NoSuchElementException e = assertThrows(NoSuchElementException.class,
+                () -> {
+                    bookingService.patchBooking(ID, true, ID + 1);
+                });
+
+        assertNotNull(e);
+    }
+
+
+
+
+
 }
