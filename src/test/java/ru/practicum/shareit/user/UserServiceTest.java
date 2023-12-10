@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -12,8 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -105,4 +105,18 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).findAll();
     }
+
+    @Test
+    void updateUserShouldThrowNotFoundExceptionWhenUserNotFound() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        UserDto userDto = new UserDto();
+        userDto.setId(1);
+
+        assertThrows(NotFoundException.class, () -> userService.updateUser(userDto, 1));
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
 }

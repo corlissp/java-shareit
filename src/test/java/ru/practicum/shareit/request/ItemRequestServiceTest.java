@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.CommentMapper;
 import ru.practicum.shareit.item.service.ItemMapper;
@@ -130,5 +131,41 @@ public class ItemRequestServiceTest {
         assertEquals(request.getDescription(), result.getDescription());
         assertNotNull(result.getItems());
         assertTrue(result.getItems().isEmpty());
+    }
+
+    @Test
+    void findAllByUserIdShouldThrowNotFoundExceptionWhenUserNotFound() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            requestService.findAllByUserId(ID);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void findAllShouldThrowNotFoundExceptionWhenUserNotFound() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            requestService.findAll(FROM_VALUE, SIZE_VALUE, ID);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void findByIdShouldThrowNotFoundExceptionWhenUserNotFound() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            requestService.findById(ID, ID);
+        });
+
+        assertNotNull(exception);
     }
 }

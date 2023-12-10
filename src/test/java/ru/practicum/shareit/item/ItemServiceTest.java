@@ -25,12 +25,12 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ItemServiceTest {
 
@@ -178,6 +178,43 @@ public class ItemServiceTest {
         assertNotNull(result);
         assertEquals(ID, result.getId());
         assertTrue(result.getComments().isEmpty());
+    }
+
+    @Test
+    void searchAvailableItemsByTextShouldReturnEmptyListForBlankText() {
+        List<ItemDto> result = itemService.searchAvailableItemsByText("");
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(itemRepository, never()).search(any(String.class));
+    }
+
+    @Test
+    void updateItemShouldThrowNotFoundExceptionWhenItemNotFound() {
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            itemService.updateItem(ID, ID, itemDto);
+        });
+
+        assertNotNull(exception);
+        verify(commentRepository, never()).findByItemId(any(Integer.class));
+        verify(itemRepository, never()).save(any(Item.class));
+    }
+
+    @Test
+    void saveItemShouldThrowNotFoundExceptionWhenOwnerNotFound() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> {
+                    itemService.saveItem(ID, itemDto);
+                });
+
+        assertNotNull(exception);
+        verify(itemRepository, never()).save(any(Item.class));
     }
 
 }
