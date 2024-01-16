@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,11 +11,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -24,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc
 public class UserControllerTest {
+
+    private static final String CONTROLLER_URL = "/users";
 
     @MockBean
     private UserService userService;
@@ -43,6 +49,71 @@ public class UserControllerTest {
                 .andExpect(content().json("[]"));
 
         verify(userService, times(1)).getAllUsers();
+    }
+
+    @Test
+    @SneakyThrows
+    void getAllUsers_whenInvoked_thenReturnedStatusOk() {
+        mvc
+                .perform(
+                        get(CONTROLLER_URL)
+                )
+                .andExpect(status().isOk());
+
+        verify(userService).getAllUsers();
+    }
+
+    @Test
+    @SneakyThrows
+    void getUserById_whenUserIdIsValid_thenReturnedUserAndStatusOk() {
+        int userId = 1;
+        UserMapper userMapper = new UserMapper();
+        User user = User.builder().id(userId).build();
+        UserDto userDTO = userMapper.toUserDTO(user);
+
+        when(userService.getUser(userId)).thenReturn(userDTO);
+
+        String json = mvc
+                .perform(
+                        get(CONTROLLER_URL + "/{userId}", userId)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(mapper.writeValueAsString(userDTO), json);
+        assertEquals(userId, userDTO.getId());
+    }
+
+    @Test
+    @SneakyThrows
+    void getUserById_whenUserIdIsNotValid_thenReturnedBadRequest() {
+        String userId = "userId";
+
+        mvc.perform(
+                        get(CONTROLLER_URL + "/{userId}", userId)
+                )
+                .andExpect(status().isBadRequest());
+
+        verify(userService, never()).getUser(anyInt());
+    }
+
+    @Test
+    @SneakyThrows
+    void saveUser_whenUserIsNotValid_thenReturnedBadRequest() {
+        UserDto userDTO = UserDto.builder().build();
+
+        mvc.perform(
+                        post(CONTROLLER_URL)
+                                .content(mapper.writeValueAsString(userDTO))
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest());
+
+        verify(userService, never()).saveUser(any(UserDto.class));
     }
 
     @Test
@@ -145,6 +216,30 @@ public class UserControllerTest {
                 .name(name)
                 .email(email)
                 .build();
+    }
+
+    @Test
+    @SneakyThrows
+    void deleteUser_whenUserIdIsValid_thenReturnedStatusOk() {
+        int userId = 1;
+
+        mvc
+                .perform(
+                        delete(CONTROLLER_URL + "/{userId}", userId)
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void deleteUser_whenUserIdIsNotValid_thenReturnedBadRequest() {
+        String userId = "string";
+
+        mvc
+                .perform(
+                        delete(CONTROLLER_URL + "/{userId}", userId)
+                )
+                .andExpect(status().isBadRequest());
     }
 
     private String toJson(UserDto dto) {
