@@ -95,6 +95,71 @@ public class ItemMapperTest {
     }
 
     @Test
+    public void toItem() {
+        Item result = itemMapper.toItem(itemDto);
+
+        assertNotNull(result);
+        assertEquals(itemDto.getName(), result.getName());
+        assertEquals(itemDto.getDescription(), result.getDescription());
+        assertEquals(ID, result.getOwner());
+        assertEquals(itemDto.getRequestId(), result.getRequestId());
+    }
+
+    @Test
+    public void mapItemListToItemDtoList() {
+        List<Item> itemList = Collections.singletonList(item);
+        List<ItemDto> result = itemMapper.mapItemListToItemDtoList(itemList);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(item.getId(), result.get(0).getId());
+        assertEquals(item.getName(), result.get(0).getName());
+        assertEquals(item.getDescription(), result.get(0).getDescription());
+        assertEquals(item.getAvailable(), result.get(0).getAvailable());
+        assertEquals(item.getRequestId(), result.get(0).getRequestId());
+        assertEquals(item.getOwner(), result.get(0).getOwner());
+    }
+
+    @Test
+    public void toDtoWithBookings() {
+        Booking booking = new Booking(ID,
+                CREATED_DATE,
+                CREATED_DATE.plusDays(7),
+                item,
+                new User(ID, "booker", "booker@emali.com"),
+                BookingStatus.APPROVED);
+
+        ItemDto result = itemMapper.toDto(item, booking, booking, Collections.singletonList(comment));
+
+        assertNotNull(result);
+        assertEquals(item.getId(), result.getId());
+        assertEquals(item.getName(), result.getName());
+        assertEquals(item.getDescription(), result.getDescription());
+        assertEquals(item.getAvailable(), result.getAvailable());
+        assertEquals(item.getRequestId(), result.getRequestId());
+        assertEquals(item.getOwner(), result.getOwner());
+        assertNotNull(result.getLastBooking());
+        assertNotNull(result.getNextBooking());
+        assertFalse(result.getComments().isEmpty());
+    }
+
+    @Test
+    public void toDtoWithoutBookings() {
+        ItemDto result = itemMapper.toDto(item, Collections.singletonList(comment));
+
+        assertNotNull(result);
+        assertEquals(item.getId(), result.getId());
+        assertEquals(item.getName(), result.getName());
+        assertEquals(item.getDescription(), result.getDescription());
+        assertEquals(item.getAvailable(), result.getAvailable());
+        assertEquals(item.getRequestId(), result.getRequestId());
+        assertEquals(item.getOwner(), result.getOwner());
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
+        assertFalse(result.getComments().isEmpty());
+    }
+
+    @Test
     public void toRequestItemDtoList() {
         List<ItemInRequestDto> result = itemMapper
                 .toRequestItemDtoList(Collections.singletonList(item));
