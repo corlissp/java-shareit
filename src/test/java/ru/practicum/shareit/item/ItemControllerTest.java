@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,7 +17,9 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -28,13 +31,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ItemControllerTest {
 
     public static final Integer ID = 1;
+    public static final String TEXT_PARAM = "text";
     public static final String USER_ID_HEADER = "X-Sharer-User-Id";
     public static final LocalDateTime CREATION_DATE = LocalDateTime.now();
+
 
     @MockBean
     ItemService itemService;
     private final ObjectMapper mapper = new ObjectMapper();
     private final MockMvc mvc;
+    @InjectMocks
+    private ItemController itemController;
 
     @Autowired
     public ItemControllerTest(MockMvc mvc) {
@@ -142,6 +149,51 @@ public class ItemControllerTest {
 
         verify(itemService, times(1)).getItemById(any(Integer.class), any(Integer.class));
     }
+
+    @Test
+    public void getAllItemsTest() throws Exception {
+        List<ItemDto> itemList = List.of(generateItemResponseDto(ID, generateItemInputDto()));
+
+        when(itemService.getAllItems(any(Integer.class)))
+                .thenReturn(itemList);
+
+        mvc.perform(get("/items")
+                        .header(USER_ID_HEADER, ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(ID), Integer.class));
+
+        verify(itemService, times(1)).getAllItems(any(Integer.class));
+    }
+
+    @Test
+    public void deleteItemTest() throws Exception {
+        doNothing().when(itemService).deleteItem(any(Integer.class), any(Integer.class));
+
+        mvc.perform(delete("/items/1")
+                        .header(USER_ID_HEADER, ID))
+                .andExpect(status().isOk());
+
+        verify(itemService, times(1)).deleteItem(any(Integer.class), any(Integer.class));
+    }
+
+    @Test
+    public void searchAvailableItemsTest() throws Exception {
+        String searchText = "text";
+        List<ItemDto> itemList = List.of(generateItemResponseDto(ID, generateItemInputDto()));
+
+        when(itemService.searchAvailableItemsByText(any(String.class)))
+                .thenReturn(itemList);
+
+        mvc.perform(get("/items/search")
+                        .param(TEXT_PARAM, searchText))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(ID), Integer.class));
+
+        verify(itemService, times(1)).searchAvailableItemsByText(any(String.class));
+    }
+
 
     private CommentDto generateResponseCommentDto(Integer id, CreateCommentDto dto) {
         return CommentDto.builder()

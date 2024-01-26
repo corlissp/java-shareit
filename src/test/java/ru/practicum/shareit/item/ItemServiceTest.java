@@ -23,10 +23,7 @@ import ru.practicum.shareit.user.service.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -215,6 +212,43 @@ public class ItemServiceTest {
 
         assertNotNull(exception);
         verify(itemRepository, never()).save(any(Item.class));
+    }
+
+    @Test
+    public void getAllItemsForOwnerTest() {
+        List<Item> userItems = List.of(item);
+
+        when(itemRepository.findAll())
+                .thenReturn(userItems);
+
+        List<ItemDto> result = itemService.getAllItems(ID);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(itemDto.getId(), result.get(0).getId());
+        verify(commentRepository, times(1)).findByItemId(any(Integer.class));
+    }
+
+    @Test
+    public void getAllItemsEmptyListTest() {
+        when(itemRepository.findAll())
+                .thenReturn(Collections.emptyList());
+
+        List<ItemDto> result = itemService.getAllItems(ID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(commentRepository, never()).findByItemId(any(Integer.class));
+    }
+
+    @Test
+    public void deleteItemTest() {
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(item));
+
+        itemService.deleteItem(ID, ID);
+
+        verify(itemRepository, times(1)).deleteById(any(Integer.class));
     }
 
 }

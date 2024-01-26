@@ -168,4 +168,19 @@ public class ItemRequestServiceTest {
 
         assertNotNull(exception);
     }
+
+    @Test
+    void createRequestShouldThrowNotFoundExceptionWhenUserNotFound() {
+        PostRequestDto inputDto = new PostRequestDto(request.getDescription());
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            requestService.createRequest(inputDto, ID);
+        });
+
+        assertNotNull(exception);
+    }
+
 }
