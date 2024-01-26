@@ -186,34 +186,6 @@ public class ItemServiceTest {
         verify(itemRepository, never()).search(any(String.class));
     }
 
-//    @Test
-//    void updateItemShouldThrowNotFoundExceptionWhenItemNotFound() {
-//        when(itemRepository.findById(any(Integer.class)))
-//                .thenReturn(Optional.empty());
-//
-//        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-//            itemService.updateItem(ID, ID, itemDto);
-//        });
-//
-//        assertNotNull(exception);
-//        verify(commentRepository, never()).findByItemId(any(Integer.class));
-//        verify(itemRepository, never()).save(any(Item.class));
-//    }
-
-//    @Test
-//    void saveItemShouldThrowNotFoundExceptionWhenOwnerNotFound() {
-//        when(userRepository.findById(any(Integer.class)))
-//                .thenReturn(Optional.empty());
-//
-//        NotFoundException exception = assertThrows(NotFoundException.class,
-//                () -> {
-//                    itemService.saveItem(ID, itemDto);
-//                });
-//
-//        assertNotNull(exception);
-//        verify(itemRepository, never()).save(any(Item.class));
-//    }
-
     @Test
     public void getAllItemsForOwnerTest() {
         List<Item> userItems = List.of(item);
@@ -345,24 +317,22 @@ public class ItemServiceTest {
         verify(itemRepository, times(1)).search(searchText);
     }
 
-//    @Test
-//    public void updateItemShouldThrowNotFoundExceptionWhenOwnerMismatch() {
-//        ItemDto updatedItemDto = ItemDto.builder()
-//                .id(ID)
-//                .name("updatedName")
-//                .build();
-//
-//        // Ensure the user ID doesn't match the owner of the item
-//        int mismatchedUserId = ID + 1;
-//
-//        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-//            itemService.updateItem(updatedItemDto.getId(), mismatchedUserId, updatedItemDto);
-//        });
-//
-//        assertNotNull(exception);
-//        verify(itemRepository, never()).findByItemId(any(Integer.class));
-//        verify(itemRepository, never()).save(any(Item.class));
-//    }
+    @Test
+    public void updateItemShouldThrowNotFoundExceptionWhenOwnerMismatch() {
+        ItemDto updatedItemDto = ItemDto.builder()
+                .id(ID)
+                .name("updatedName")
+                .build();
+
+        int mismatchedUserId = ID + 1;
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            itemService.updateItem(updatedItemDto.getId(), mismatchedUserId, updatedItemDto);
+        });
+
+        assertNotNull(exception);
+        verify(itemRepository, never()).save(any(Item.class));
+    }
 
     @Test
     public void getAllItemsHandlesEmptyItemList() {

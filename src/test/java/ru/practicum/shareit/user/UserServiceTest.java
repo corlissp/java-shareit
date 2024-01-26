@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.practicum.shareit.exception.EmailConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -117,6 +118,62 @@ public class UserServiceTest {
         assertThrows(NotFoundException.class, () -> userService.updateUser(userDto, 1));
 
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void updateShouldNotThrowEmailConflictExceptionWhenEmailNotChanged() {
+        UserDto userDto = new UserDto();
+        userDto.setId(1);
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> userService.update(userDto.getId(), userDto));
+    }
+
+    @Test
+    void updateShouldThrowEmailConflictExceptionWhenEmailAlreadyExists() {
+        UserDto userDto = new UserDto();
+        userDto.setId(1);
+        userDto.setEmail("existing@email.com");
+
+        User existingUser = new User(2, "existing", "existing@email.com");
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.of(user));
+
+        when(userRepository.findAll())
+                .thenReturn(Collections.singletonList(existingUser));
+
+        EmailConflictException exception = assertThrows(EmailConflictException.class, () -> {
+            userService.update(userDto.getId(), userDto);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void updateShouldNotThrowEmailConflictExceptionWhenEmailIsNull() {
+        UserDto userDto = new UserDto();
+        userDto.setId(1);
+        userDto.setEmail(null);
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> userService.update(userDto.getId(), userDto));
+    }
+
+    @Test
+    void updateShouldNotThrowEmailConflictExceptionWhenEmailIsBlank() {
+        UserDto userDto = new UserDto();
+        userDto.setId(1);
+        userDto.setEmail("");
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> userService.update(userDto.getId(), userDto));
     }
 
 }

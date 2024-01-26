@@ -183,4 +183,66 @@ public class ItemRequestServiceTest {
         assertNotNull(exception);
     }
 
+    @Test
+    void createRequestShouldThrowNotFoundExceptionWhenSaveFails() {
+        PostRequestDto inputDto = new PostRequestDto(request.getDescription());
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(requestRepository.save(any(Request.class)))
+                .thenThrow(new RuntimeException("Test exception"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            requestService.createRequest(inputDto, ID);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void findAllByUserIdShouldHandleExceptionFromRepository() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(requestRepository.findRequestByRequestorOrderByCreatedDesc(any(Integer.class)))
+                .thenThrow(new RuntimeException("Test exception"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            requestService.findAllByUserId(ID);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void findAllShouldHandleExceptionFromRepository() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(requestRepository.findAll(any(Integer.class), any(Pageable.class)))
+                .thenThrow(new RuntimeException("Test exception"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            requestService.findAll(FROM_VALUE, SIZE_VALUE, ID);
+        });
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void findByIdShouldHandleExceptionFromRepository() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(requestRepository.findById(any(Integer.class)))
+                .thenThrow(new RuntimeException("Test exception"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            requestService.findById(ID, ID);
+        });
+
+        assertNotNull(exception);
+    }
+
 }

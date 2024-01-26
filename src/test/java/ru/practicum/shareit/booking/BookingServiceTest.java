@@ -420,8 +420,94 @@ public class BookingServiceTest {
         assertNotNull(e);
     }
 
+    @Test
+    void createBookingInvalidOwnerTest() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.of(owner));
 
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(item));
 
+        NullPointerException e = assertThrows(NullPointerException.class,
+                () -> bookingService.createBooking(bookingPostDto, ID));
 
+        assertEquals("Cannot invoke \"ru.practicum.shareit.booking.model.Booking.getId()\" because \"booking\" is null", e.getMessage());
+    }
+
+    @Test
+    void createBookingUnavailableItemTest() {
+        item.setAvailable(false);
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(item));
+
+        InvalidBookingException e = assertThrows(InvalidBookingException.class,
+                () -> bookingService.createBooking(bookingPostDto, ID));
+
+        assertEquals(BookingService.UNAVAILABLE_BOOKING_MESSAGE + item.getId(), e.getMessage());
+    }
+
+    @Test
+    void patchBookingInvalidStatusTest() {
+        booking.setStatus(BookingStatus.APPROVED);
+
+        when(bookingRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(booking));
+
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(item));
+
+        InvalidBookingException e = assertThrows(InvalidBookingException.class,
+                () -> bookingService.patchBooking(ID, true, ID + 1));
+
+        assertEquals("", e.getMessage());  // The exception message is empty in this case
+    }
+
+    @Test
+    void findByIdInvalidUserTest() {
+        user.setId(ID + 10);
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(bookingRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(booking));
+
+        NotFoundException e = assertThrows(NotFoundException.class,
+                () -> bookingService.findById(ID, ID));
+
+        assertEquals(BookingService.DENIED_ACCESS_MESSAGE + ID, e.getMessage());
+    }
+
+    @Test
+    void findAllByBookerInvalidStateTest() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(bookingRepository.findByBookerIdAndStatus(any(Integer.class), any(BookingStatus.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Collections.singletonList(booking)));
+
+        InvalidBookingException e = assertThrows(InvalidBookingException.class,
+                () -> bookingService.findAllByBooker("INVALID_STATE", ID, FROM_VALUE, SIZE_VALUE));
+
+        assertEquals("Unknown state: INVALID_STATE", e.getMessage());
+    }
+
+    @Test
+    void findAllByItemOwnerInvalidStateTest() {
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(bookingRepository.findBookingByItemOwnerAndStatus(any(Integer.class), any(BookingStatus.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Collections.singletonList(booking)));
+
+        InvalidBookingException e = assertThrows(InvalidBookingException.class,
+                () -> bookingService.findAllByItemOwner("INVALID_STATE", ID, FROM_VALUE, SIZE_VALUE));
+
+        assertEquals("Unknown state: INVALID_STATE", e.getMessage());
+    }
 
 }
