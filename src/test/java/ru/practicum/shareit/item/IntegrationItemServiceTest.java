@@ -71,7 +71,6 @@ public class IntegrationItemServiceTest {
         assertEquals(savedItemDto.getAvailable(), searchedItemDto.getAvailable());
     }
 
-
     private ItemDto generateItemDto() {
         ItemDto itemDto = ItemDto.builder()
                 .name("item1")

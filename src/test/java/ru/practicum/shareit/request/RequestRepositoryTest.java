@@ -22,7 +22,6 @@ public class RequestRepositoryTest {
 
     @Autowired
     private RequestRepository itemRequestRepository;
-
     @Autowired
     private UserRepository userRepository;
 
