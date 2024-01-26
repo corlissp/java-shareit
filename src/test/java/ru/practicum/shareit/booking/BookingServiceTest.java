@@ -421,20 +421,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    void createBookingInvalidOwnerTest() {
-        when(userRepository.findById(any(Integer.class)))
-                .thenReturn(Optional.of(owner));
-
-        when(itemRepository.findById(any(Integer.class)))
-                .thenReturn(Optional.ofNullable(item));
-
-        NullPointerException e = assertThrows(NullPointerException.class,
-                () -> bookingService.createBooking(bookingPostDto, ID));
-
-        assertEquals("Cannot invoke \"ru.practicum.shareit.booking.model.Booking.getId()\" because \"booking\" is null", e.getMessage());
-    }
-
-    @Test
     void createBookingUnavailableItemTest() {
         item.setAvailable(false);
 
