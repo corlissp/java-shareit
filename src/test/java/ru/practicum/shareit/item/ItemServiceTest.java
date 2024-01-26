@@ -186,33 +186,33 @@ public class ItemServiceTest {
         verify(itemRepository, never()).search(any(String.class));
     }
 
-    @Test
-    void updateItemShouldThrowNotFoundExceptionWhenItemNotFound() {
-        when(itemRepository.findById(any(Integer.class)))
-                .thenReturn(Optional.empty());
+//    @Test
+//    void updateItemShouldThrowNotFoundExceptionWhenItemNotFound() {
+//        when(itemRepository.findById(any(Integer.class)))
+//                .thenReturn(Optional.empty());
+//
+//        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+//            itemService.updateItem(ID, ID, itemDto);
+//        });
+//
+//        assertNotNull(exception);
+//        verify(commentRepository, never()).findByItemId(any(Integer.class));
+//        verify(itemRepository, never()).save(any(Item.class));
+//    }
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            itemService.updateItem(ID, ID, itemDto);
-        });
-
-        assertNotNull(exception);
-        verify(commentRepository, never()).findByItemId(any(Integer.class));
-        verify(itemRepository, never()).save(any(Item.class));
-    }
-
-    @Test
-    void saveItemShouldThrowNotFoundExceptionWhenOwnerNotFound() {
-        when(userRepository.findById(any(Integer.class)))
-                .thenReturn(Optional.empty());
-
-        NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> {
-                    itemService.saveItem(ID, itemDto);
-                });
-
-        assertNotNull(exception);
-        verify(itemRepository, never()).save(any(Item.class));
-    }
+//    @Test
+//    void saveItemShouldThrowNotFoundExceptionWhenOwnerNotFound() {
+//        when(userRepository.findById(any(Integer.class)))
+//                .thenReturn(Optional.empty());
+//
+//        NotFoundException exception = assertThrows(NotFoundException.class,
+//                () -> {
+//                    itemService.saveItem(ID, itemDto);
+//                });
+//
+//        assertNotNull(exception);
+//        verify(itemRepository, never()).save(any(Item.class));
+//    }
 
     @Test
     public void getAllItemsForOwnerTest() {
@@ -230,7 +230,30 @@ public class ItemServiceTest {
     }
 
     @Test
+    public void deleteItemTest() {
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.ofNullable(item));
+
+        itemService.deleteItem(ID, ID);
+
+        verify(itemRepository, times(1)).deleteById(any(Integer.class));
+    }
+
+    @Test
     public void getAllItemsEmptyListTest() {
+        ItemRepository itemRepository = mock(ItemRepository.class);
+        CommentRepository commentRepository = mock(CommentRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        ItemService itemService = new ItemService(
+                itemRepository,
+                commentRepository,
+                new CommentMapper(),
+                userRepository,
+                bookingRepository,
+                new ItemMapper(new CommentMapper()),
+                new UserService(userRepository, new UserMapper()));
+
         when(itemRepository.findAll())
                 .thenReturn(Collections.emptyList());
 
@@ -242,13 +265,129 @@ public class ItemServiceTest {
     }
 
     @Test
-    public void deleteItemTest() {
+    public void updateItemShouldThrowNotFoundExceptionWhenItemNotFound() {
+        ItemRepository itemRepository = mock(ItemRepository.class);
+        CommentRepository commentRepository = mock(CommentRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        ItemService itemService = new ItemService(
+                itemRepository,
+                commentRepository,
+                new CommentMapper(),
+                userRepository,
+                bookingRepository,
+                new ItemMapper(new CommentMapper()),
+                new UserService(userRepository, new UserMapper()));
+
         when(itemRepository.findById(any(Integer.class)))
-                .thenReturn(Optional.ofNullable(item));
+                .thenReturn(Optional.empty());
 
-        itemService.deleteItem(ID, ID);
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            itemService.updateItem(ID, ID, ItemDto.builder().build());
+        });
 
-        verify(itemRepository, times(1)).deleteById(any(Integer.class));
+        assertNotNull(exception);
+        verify(commentRepository, never()).findByItemId(any(Integer.class));
+        verify(itemRepository, never()).save(any(Item.class));
     }
+
+    @Test
+    void saveItemShouldThrowNotFoundExceptionWhenOwnerNotFound() {
+        ItemRepository itemRepository = mock(ItemRepository.class);
+        CommentRepository commentRepository = mock(CommentRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        ItemService itemService = new ItemService(
+                itemRepository,
+                commentRepository,
+                new CommentMapper(),
+                userRepository,
+                bookingRepository,
+                new ItemMapper(new CommentMapper()),
+                new UserService(userRepository, new UserMapper()));
+
+        when(userRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> {
+                    itemService.saveItem(ID, ItemDto.builder().build());
+                });
+
+        assertNotNull(exception);
+        verify(itemRepository, never()).save(any(Item.class));
+    }
+
+    @Test
+    public void deleteItemThrowsNotFoundExceptionWhenItemNotFound() {
+        when(itemRepository.findById(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
+            itemService.deleteItem(ID, ID);
+        });
+
+        assertNotNull(exception);
+        verify(itemRepository, never()).deleteById(any(Integer.class));
+    }
+
+    @Test
+    public void searchAvailableItemsByTextShouldReturnItemListForNonBlankText() {
+        String searchText = "search";
+        List<Item> searchResults = Collections.singletonList(item);
+        when(itemRepository.search(searchText))
+                .thenReturn(searchResults);
+
+        List<ItemDto> result = itemService.searchAvailableItemsByText(searchText);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        verify(itemRepository, times(1)).search(searchText);
+    }
+
+//    @Test
+//    public void updateItemShouldThrowNotFoundExceptionWhenOwnerMismatch() {
+//        ItemDto updatedItemDto = ItemDto.builder()
+//                .id(ID)
+//                .name("updatedName")
+//                .build();
+//
+//        // Ensure the user ID doesn't match the owner of the item
+//        int mismatchedUserId = ID + 1;
+//
+//        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+//            itemService.updateItem(updatedItemDto.getId(), mismatchedUserId, updatedItemDto);
+//        });
+//
+//        assertNotNull(exception);
+//        verify(itemRepository, never()).findByItemId(any(Integer.class));
+//        verify(itemRepository, never()).save(any(Item.class));
+//    }
+
+    @Test
+    public void getAllItemsHandlesEmptyItemList() {
+        when(itemRepository.findAll())
+                .thenReturn(Collections.emptyList());
+
+        List<ItemDto> result = itemService.getAllItems(ID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(commentRepository, never()).findByItemId(any(Integer.class));
+    }
+
+    @Test
+    public void saveItemHandlesEmptyOwnerList() {
+        when(userRepository.findAll())
+                .thenReturn(Collections.emptyList());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            itemService.saveItem(ID, itemDto);
+        });
+
+        assertNotNull(exception);
+        verify(itemRepository, never()).save(any(Item.class));
+    }
+
 
 }
