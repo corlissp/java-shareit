@@ -17,8 +17,7 @@ import ru.practicum.shareit.request.dto.PostResponseRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,19 +41,46 @@ public class ItemRequestService {
         return requestMapper.toPostResponseDto(request);
     }
 
+//    public List<RequestWithItemsDto> findAllByUserId(Integer userId) {
+//        checkIfUserExists(userId);
+//        List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedDesc(userId);
+//        List<RequestWithItemsDto> result = new ArrayList<>();
+//        if (requests != null && !requests.isEmpty()) {
+//            for (Request request : requests) {
+//                List<Item> items = itemRepository.findAllByRequestId(request.getId());
+//                RequestWithItemsDto requestDto = requestMapper.toRequestWithItemsDto(request, items);
+//                result.add(requestDto);
+//            }
+//        }
+//        return result;
+//    }
+
+
     public List<RequestWithItemsDto> findAllByUserId(Integer userId) {
         checkIfUserExists(userId);
+
         List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedDesc(userId);
-        List<RequestWithItemsDto> result = new ArrayList<>();
+
+        Map<Integer, List<Item>> itemsMap = new HashMap<>();
+
         if (requests != null && !requests.isEmpty()) {
-            for (Request request : requests) {
-                List<Item> items = itemRepository.findAllByRequestId(request.getId());
-                RequestWithItemsDto requestDto = requestMapper.toRequestWithItemsDto(request, items);
-                result.add(requestDto);
-            }
+            List<Integer> requestIds = requests.stream().map(Request::getId).collect(Collectors.toList());
+            List<Item> allItems = itemRepository.findAllByRequestIdIn(requestIds);
+
+            itemsMap = allItems.stream().collect(Collectors.groupingBy(Item::getRequestId));
         }
+
+        List<RequestWithItemsDto> result = new ArrayList<>();
+
+        for (Request request : requests) {
+            List<Item> items = itemsMap.getOrDefault(request.getId(), Collections.emptyList());
+            RequestWithItemsDto requestDto = requestMapper.toRequestWithItemsDto(request, items);
+            result.add(requestDto);
+        }
+
         return result;
     }
+
 
     public List<RequestWithItemsDto> findAll(int from, int size, Integer userId) {
         checkIfUserExists(userId);

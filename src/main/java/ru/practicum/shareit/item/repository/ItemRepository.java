@@ -22,4 +22,6 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     Page<Item> findAll(Integer userId, Pageable pageable);
 
     List<Item> findAllByRequestId(Integer requestId);
+
+    List<Item> findAllByRequestIdIn(List<Integer> requestIds);
 }

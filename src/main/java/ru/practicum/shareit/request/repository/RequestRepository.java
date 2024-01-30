@@ -4,6 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.Request;
 
 import java.util.List;
@@ -16,4 +18,9 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
 
     @Query("select r from requests r where r.requestor <> ?1")
     Page<Request> findAll(Integer userId, Pageable pageable);
+
+
+//    @Query("SELECT r, i FROM Request r LEFT JOIN FETCH r.items i WHERE r.requestor.id = :userId ORDER BY r.created DESC")
+//    List<Object[]> findRequestsWithItemsByUserId(@Param("userId") Integer userId);
+
 }
