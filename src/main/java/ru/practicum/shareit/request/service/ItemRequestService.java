@@ -41,21 +41,6 @@ public class ItemRequestService {
         return requestMapper.toPostResponseDto(request);
     }
 
-//    public List<RequestWithItemsDto> findAllByUserId(Integer userId) {
-//        checkIfUserExists(userId);
-//        List<Request> requests = requestRepository.findRequestByRequestorOrderByCreatedDesc(userId);
-//        List<RequestWithItemsDto> result = new ArrayList<>();
-//        if (requests != null && !requests.isEmpty()) {
-//            for (Request request : requests) {
-//                List<Item> items = itemRepository.findAllByRequestId(request.getId());
-//                RequestWithItemsDto requestDto = requestMapper.toRequestWithItemsDto(request, items);
-//                result.add(requestDto);
-//            }
-//        }
-//        return result;
-//    }
-
-
     public List<RequestWithItemsDto> findAllByUserId(Integer userId) {
         checkIfUserExists(userId);
 
@@ -81,16 +66,23 @@ public class ItemRequestService {
         return result;
     }
 
-
     public List<RequestWithItemsDto> findAll(int from, int size, Integer userId) {
         checkIfUserExists(userId);
-        Pageable pageable = PageRequest.of(from / size, size, SORT.descending());
+
+        Pageable pageable = PageRequest.of(from / size, size, Sort.Direction.DESC, "created");
+
         Page<Request> requests = requestRepository.findAll(userId, pageable);
+
+        List<Integer> requestIds = requests.stream().map(Request::getId).collect(Collectors.toList());
+        Map<Integer, List<Item>> itemsMap = itemRepository.findAllByRequestIdIn(requestIds)
+                .stream().collect(Collectors.groupingBy(Item::getRequestId));
+
         return requests.stream()
-                .map((Request request) -> {
-                    List<Item> items = itemRepository.findAllByRequestId(request.getId());
+                .map(request -> {
+                    List<Item> items = itemsMap.getOrDefault(request.getId(), Collections.emptyList());
                     return requestMapper.toRequestWithItemsDto(request, items);
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
     }
 
     public RequestWithItemsDto findById(Integer requestId, Integer userId) {
