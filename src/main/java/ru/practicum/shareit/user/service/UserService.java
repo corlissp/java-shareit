@@ -48,7 +48,7 @@ public class UserService {
         repository.deleteById(id);
     }
 
-    private User update(Integer id, UserDto patch) {
+    public User update(Integer id, UserDto patch) {
         patch.setId(id);
         if (!checkFreeEmail(mapper.toUser(patch)))
             throw new EmailConflictException(EMAIL_CONFLICT);
